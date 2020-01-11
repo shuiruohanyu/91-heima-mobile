@@ -59,6 +59,7 @@ const routes = [
     path: '/search/result',
     component: SearchResult // 搜索结果
   }
+
 ]
 
 const router = new VueRouter({
