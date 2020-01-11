@@ -1,5 +1,7 @@
 <template>
-  <div>个人中心</div>
+  <div class='container'>
+
+  </div>
 </template>
 
 <script>
