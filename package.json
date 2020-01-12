@@ -9,7 +9,9 @@
   },
   "dependencies": {
     "amfe-flexible": "^2.2.1",
+    "axios": "^0.19.1",
     "core-js": "^3.6.3",
+    "json-bigint": "^0.3.0",
     "vant": "^2.4.2-beta.2",
     "vue": "^2.6.10",
     "vue-router": "^3.1.3",
