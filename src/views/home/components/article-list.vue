@@ -35,6 +35,7 @@
 </template>
 
 <script>
+import { getArticles } from '@/api/article'
 export default {
   name: 'article-list',
   data () {
@@ -56,22 +57,34 @@ export default {
   },
   methods: {
     //   上拉加载方法
-    onLoad () {
-      console.log('获取数据')
-      setTimeout(() => {
-        //   给数据设置一个上限  不超过50条 如果50 条
-        if (this.articles.length < 50) {
-          let arr = Array.from(
-            Array(10),
-            (value, index) => this.articles.length + index + 1
-          )
-          this.articles.push(...arr)
-          //   关掉状态
-          this.upLoading = false
-        } else {
-          this.finished = true // 告诉list组件  我已经加载完了 不要再去触发onLoad事件了
-        }
-      }, 1000)
+    async onLoad () {
+      // console.log('获取数据')
+      // setTimeout(() => {
+      //   //   给数据设置一个上限  不超过50条 如果50 条
+      //   if (this.articles.length < 50) {
+      //     let arr = Array.from(
+      //       Array(10),
+      //       (value, index) => this.articles.length + index + 1
+      //     )
+      //     this.articles.push(...arr)
+      //     //   关掉状态
+      //     this.upLoading = false
+      //   } else {
+      //     this.finished = true // 告诉list组件  我已经加载完了 不要再去触发onLoad事件了
+      //   }
+      // }, 1000)
+      // 请求数据  注意如果 时间戳为就传当前时间
+      const data = await getArticles({ channel_id: this.channel_id, timestamp: this.timestamp || Date.now() })
+      this.articles.push(...data.results)
+      // 关掉加载的状态
+      this.upLoading = false // 关掉状态
+      // 判断历史时间戳 如果你有历史 表示我还可以继续往下看 否则就不看了
+      if (data.pre_timestamp) {
+        this.timestamp = data.pre_timestamp
+      } else {
+        // 否则认为 没有历史了 木有必要继续加载了
+        this.finished = true // 告诉list组件  我已经加载完了 不要再去触发onLoad事件了
+      }
     },
     // 下拉刷新方法
     onRefresh () {
