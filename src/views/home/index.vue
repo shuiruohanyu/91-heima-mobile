@@ -2,13 +2,8 @@
   <div class="container">
     <van-tabs v-model="activeIndex" swipeable>
       <van-tab :title="'标签' +  item" v-for="item in 10" :key="item">
-        <!-- 这里注意 这个div设置了滚动条 目的是 给后面做 阅读记忆 留下伏笔 -->
-        <!-- 阅读记忆 => 看文章看到一半 滑到中部 去了别的页面 当你回来时 文章还在你看的位置 -->
-        <div class='scroll-wrapper'>
-          <van-cell-group>
-            <van-cell v-for="obj in 20" :key="obj" :title="item"></van-cell>
-          </van-cell-group>
-        </div>
+       <!-- 因为一个tab标签 对应一个article-list组件 -->
+         <article-list></article-list>
       </van-tab>
     </van-tabs>
     <span class="bar_btn">
@@ -18,12 +13,16 @@
 </template>
 
 <script>
+import ArticleList from './components/article-list'
 export default {
   name: 'home', // devtools查看组件时  可以看到 对应的name名称
   data () {
     return {
       activeIndex: 0 // 默认启动第0 个标签
     }
+  },
+  components: {
+    ArticleList
   }
 }
 </script>
