@@ -11,9 +11,9 @@
       <van-icon name="wap-nav" />
     </span>
     <!-- 放置弹层组件 -->
-    <van-popup v-model="showMoreAction" :style="{width: '80%'}">
+    <van-popup  v-model="showMoreAction" :style="{width: '80%'}">
       <!-- 包裹反馈组件 -->
-      <more-action></more-action>
+      <more-action @dislike="dislike"></more-action>
     </van-popup>
   </div>
 </template>
@@ -22,6 +22,8 @@
 import ArticleList from './components/article-list'
 import MoreAction from './components/more-action'
 import { getMyChannels } from '@/api/channels'
+import { disLikeArticle } from '@/api/article'
+import eventBus from '@/utils/eventBus'
 export default {
   name: 'home', // devtools查看组件时  可以看到 对应的name名称
   data () {
@@ -45,7 +47,26 @@ export default {
     openMoreAction (artId) {
       // 打开弹层
       this.showMoreAction = true
-      this.articleId = artId
+      this.articleId = artId // 接收 不喜欢文章的id
+    },
+    // 调用不喜欢的文章的接口
+    async dislike () {
+      try {
+        await disLikeArticle({ target: this.articleId })
+        this.$gnotify({
+          type: 'success',
+          message: '操作成功'
+        })
+        // 触发一个事件  发出一个广播 听到广播的文章列表 去删除对应的数据
+        // 文章id 频道id
+        eventBus.$emit('delArticle', this.articleId, this.channels[this.activeIndex].id)
+        this.showMoreAction = false // 关闭弹层
+      } catch (error) {
+        this.$gnotify({
+          type: 'danger',
+          message: '操作失败'
+        })
+      }
     }
   },
   created () {
