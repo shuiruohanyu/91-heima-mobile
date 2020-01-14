@@ -3,7 +3,7 @@
     <van-tabs v-model="activeIndex" swipeable>
       <van-tab :title="channel.name" v-for="channel in channels" :key="channel.id">
        <!-- 因为一个tab标签 对应一个article-list组件 -->
-         <article-list></article-list>
+         <article-list :channel_id="channel.id"></article-list>
       </van-tab>
     </van-tabs>
     <span class="bar_btn">

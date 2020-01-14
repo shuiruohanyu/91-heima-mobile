@@ -43,7 +43,15 @@ export default {
       upLoading: false, // 是否开启上拉加载
       finished: false, // 是否已经完成全部的数据加载
       articles: [], // 定义一个数据来接收上拉加载的数据
-      refreshSuccessText: '' // 下拉成功显示的文本
+      refreshSuccessText: '', // 下拉成功显示的文本
+      timestamp: null // 定义一个时间戳 这个时间戳用来告诉服务器 现在我要求什么样的时间的数据
+    }
+  },
+  props: {
+    channel_id: {
+      type: Number, // 指定要传的props的类型
+      required: true, // 要求props必须传
+      default: null // 给props一个默认值
     }
   },
   methods: {
