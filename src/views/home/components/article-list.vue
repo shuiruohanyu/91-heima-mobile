@@ -24,7 +24,9 @@
               <span>{{ article.comm_count }}评论</span>
               <!-- 使用过滤器  表达式 | 过滤器名称 -->
               <span>{{ article.pubdate | relTime}}</span>
-              <span class="close">
+              <!-- 判断是否显示 叉号图标 -->
+              <!-- 点击叉号 要告诉父组件 我要反馈 -->
+              <span class="close" v-if="user.token" @click="$emit('showAction', article.art_id.toString())">
                 <van-icon name="cross"></van-icon>
               </span>
             </div>
@@ -37,6 +39,7 @@
 
 <script>
 import { getArticles } from '@/api/article'
+import { mapState } from 'vuex'
 export default {
   name: 'article-list',
   data () {
@@ -55,6 +58,10 @@ export default {
       required: true, // 要求props必须传
       default: null // 给props一个默认值
     }
+  },
+  // 映射vuex中的store对象到计算属性上
+  computed: {
+    ...mapState(['user'])
   },
   methods: {
     //   上拉加载方法
