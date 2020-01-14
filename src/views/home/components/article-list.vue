@@ -58,6 +58,8 @@ export default {
   methods: {
     //   上拉加载方法
     async onLoad () {
+      await this.$sleep() // 等待 sleep  resovle
+
       // console.log('获取数据')
       // setTimeout(() => {
       //   //   给数据设置一个上限  不超过50条 如果50 条
@@ -89,6 +91,7 @@ export default {
     },
     // 下拉刷新方法
     async onRefresh () {
+      await this.$sleep() // 等待 sleep  resovle
       // 触发下拉刷新
       // console.log('下拉刷新')
       // setTimeout(() => {
