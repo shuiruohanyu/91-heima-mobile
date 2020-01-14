@@ -11,13 +11,13 @@
             <h3 class="van-ellipsis">{{ article.title }}</h3>
             <!-- 三图模式 -->
             <div class="img_box" v-if="article.cover.type === 3">
-              <van-image class="w33" fit="cover" :src="article.cover.images[0]" />
-              <van-image class="w33" fit="cover" :src="article.cover.images[1]" />
-              <van-image class="w33" fit="cover" :src="article.cover.images[2]" />
+              <van-image lazy-load class="w33" fit="cover" :src="article.cover.images[0]" />
+              <van-image lazy-load class="w33" fit="cover" :src="article.cover.images[1]" />
+              <van-image lazy-load class="w33" fit="cover" :src="article.cover.images[2]" />
             </div>
             <!-- 单图模式 -->
             <div class="img_box" v-if="article.cover.type === 1">
-              <van-image class="w100" fit="cover" :src="article.cover.images[0]" />
+              <van-image lazy-load class="w100" fit="cover" :src="article.cover.images[0]" />
             </div>
             <div class="info_box">
               <span>{{ article.aut_name }}</span>
@@ -77,7 +77,10 @@ export default {
       //   }
       // }, 1000)
       // 请求数据  注意如果 时间戳为就传当前时间
-      const data = await getArticles({ channel_id: this.channel_id, timestamp: this.timestamp || Date.now() })
+      const data = await getArticles({
+        channel_id: this.channel_id,
+        timestamp: this.timestamp || Date.now()
+      })
       this.articles.push(...data.results)
 
       // 关掉加载的状态
@@ -102,7 +105,10 @@ export default {
       //   this.refreshSuccessText = `更新了${arr.length}条数据`
       // }, 1000)
       // 下拉刷新永远拉取的是最新的数据
-      const data = await getArticles({ channel_id: this.channel_id, timestamp: Date.now() })
+      const data = await getArticles({
+        channel_id: this.channel_id,
+        timestamp: Date.now()
+      })
       this.downLoading = false // 关掉下拉状态
       // 有可能 最新没有推荐数据
       if (data.results.length) {
@@ -115,7 +121,7 @@ export default {
         this.timestamp = data.pre_timestamp // 赋值历史时间戳 因为当你下拉刷新之后 上拉加载的时候 要用到这个历史事件戳
         this.refreshSuccessText = `更新了${data.results.length}条数据`
       } else {
-      //  如果没有数据更新  什么都不需要变化
+        //  如果没有数据更新  什么都不需要变化
         this.refreshSuccessText = '已是最新数据'
       }
     }
