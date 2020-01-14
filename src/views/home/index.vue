@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <van-tabs v-model="activeIndex" swipeable>
-      <van-tab :title="'标签' +  item" v-for="item in 10" :key="item">
+      <van-tab :title="channel.name" v-for="channel in channels" :key="channel.id">
        <!-- 因为一个tab标签 对应一个article-list组件 -->
          <article-list></article-list>
       </van-tab>
@@ -14,15 +14,27 @@
 
 <script>
 import ArticleList from './components/article-list'
+import { getMyChannels } from '@/api/channels'
 export default {
   name: 'home', // devtools查看组件时  可以看到 对应的name名称
   data () {
     return {
-      activeIndex: 0 // 默认启动第0 个标签
+      activeIndex: 0, // 默认启动第0 个标签
+      channels: [] // 声明接收频道的数据
     }
   },
   components: {
     ArticleList
+  },
+  methods: {
+    async  getMyChannels () {
+      // 获取频道列表数据
+      let data = await getMyChannels()
+      this.channels = data.channels // 将频道赋值给声明的变量
+    }
+  },
+  created () {
+    this.getMyChannels() // 获取频道
   }
 }
 </script>
