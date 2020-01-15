@@ -21,7 +21,7 @@
     <van-action-sheet :round="false" title="编辑频道" v-model="showChannelEdit">
       <!-- 放置频道编辑组件 -->
       <!-- 父组件监听 选择频道事件 -->
-      <channel-edit @selectChannel="selectChannel" :channels="channels"></channel-edit>
+      <channel-edit :activeIndex="activeIndex" @selectChannel="selectChannel" :channels="channels"></channel-edit>
     </van-action-sheet>
   </div>
 </template>
