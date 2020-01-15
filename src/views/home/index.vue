@@ -21,7 +21,7 @@
     <van-action-sheet :round="false" title="编辑频道" v-model="showChannelEdit">
       <!-- 放置频道编辑组件 -->
       <!-- 父组件监听 选择频道事件 -->
-      <channel-edit :activeIndex="activeIndex" @selectChannel="selectChannel" :channels="channels"></channel-edit>
+      <channel-edit @delChannel="delChannel" :activeIndex="activeIndex" @selectChannel="selectChannel" :channels="channels"></channel-edit>
     </van-action-sheet>
   </div>
 </template>
@@ -29,7 +29,7 @@
 <script>
 import ArticleList from './components/article-list'
 import MoreAction from './components/more-action'
-import { getMyChannels } from '@/api/channels'
+import { getMyChannels, delChannel } from '@/api/channels'
 import { disLikeArticle, reportArticle } from '@/api/article'
 import eventBus from '@/utils/eventBus'
 import ChannelEdit from './components/channel-edit'
@@ -48,6 +48,25 @@ export default {
     ArticleList, MoreAction, ChannelEdit
   },
   methods: {
+    // 删除频道的方法
+    async delChannel (id) {
+      try {
+        await delChannel(id) // 表示删除数据成功
+        // 要移除自身data中channels中的数据
+        let index = this.channels.findIndex(item => item.id === id) // 找到删除的索引
+        if (index <= this.activeIndex) {
+          // 如果删除的频道在当前激活频道之前或者就是当前激活频道
+          // 要把我们的激活索引往前挪一位
+          this.activeIndex = this.activeIndex - 1
+        }
+        if (index > -1) {
+          //  如果大于-1
+          this.channels.splice(index, 1) // 移除当前频道
+        }
+      } catch (error) {
+        this.$gnotify({ type: 'danger', message: '删除频道失败' })
+      }
+    },
     // 切换到对应的频道 关闭弹层
     selectChannel (id) {
       let index = this.channels.findIndex(item => item.id === id) // 获取切换频道的索引

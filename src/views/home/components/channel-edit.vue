@@ -16,7 +16,8 @@
           <!-- 先控制第一个推荐频道不允许删除 -->
           <template v-if="i!==0">
               <!-- 再根据状态决定是否显示 删除叉号 -->
-            <van-icon  v-show="editing" class="btn" name="cross"></van-icon>
+              <!-- 告诉父组件 要删除哪个频道 传出频道id-->
+            <van-icon @click="$emit('delChannel', channel.id)"  v-show="editing" class="btn" name="cross"></van-icon>
           </template>
         </van-grid-item>
       </van-grid>
