@@ -10,23 +10,24 @@
     <!-- 第二个单元格组 -->
     <van-cell-group v-else>
       <van-cell icon="arrow-left" @click="isReport=false">返回</van-cell>
-      <van-cell>侵权</van-cell>
-      <van-cell>色情</van-cell>
-      <van-cell>暴力</van-cell>
-      <van-cell>低俗</van-cell>
-      <van-cell>不适</van-cell>
-      <van-cell>错误</van-cell>
-      <van-cell>其他</van-cell>
+      <!-- 点击举报按钮 触发父组件 去调用 举报文章的接口 -->
+      <van-cell @click="$emit('report', item.value)" v-for="item in reports" :key="item.value">{{ item.label }}</van-cell>
     </van-cell-group>
   </div>
 </template>
 
 <script>
+import { reports } from '@/api/constants'
+import eventBus from '@/utils/eventBus'
 export default {
   data () {
     return {
-      isReport: false // 用来控制 第一个和第二个单元格的显示
+      isReport: false, // 用来控制 第一个和第二个单元格的显示
+      reports
     }
+  },
+  created () {
+    eventBus.$on('delArticle', () => (this.isReport = false))
   }
 }
 </script>

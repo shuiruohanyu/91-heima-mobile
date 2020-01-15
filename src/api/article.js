@@ -22,3 +22,11 @@ export function disLikeArticle (data) {
     data
   })
 }
+/** **封装一个举报文章的API*****/
+export function reportArticle (data) {
+  return request({
+    url: '/article/reports',
+    data,
+    method: 'post'
+  })
+}

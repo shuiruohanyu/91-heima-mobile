@@ -13,7 +13,8 @@
     <!-- 放置弹层组件 -->
     <van-popup  v-model="showMoreAction" :style="{width: '80%'}">
       <!-- 包裹反馈组件 -->
-      <more-action @dislike="dislike"></more-action>
+      <!-- report事件中的第一个参数 $event实际上就是 moreAction组件 传出的type -->
+      <more-action @dislike="dislikeOrReport($event,'dislike')" @report="dislikeOrReport($event,'report')"></more-action>
     </van-popup>
   </div>
 </template>
@@ -22,7 +23,7 @@
 import ArticleList from './components/article-list'
 import MoreAction from './components/more-action'
 import { getMyChannels } from '@/api/channels'
-import { disLikeArticle } from '@/api/article'
+import { disLikeArticle, reportArticle } from '@/api/article'
 import eventBus from '@/utils/eventBus'
 export default {
   name: 'home', // devtools查看组件时  可以看到 对应的name名称
@@ -49,10 +50,14 @@ export default {
       this.showMoreAction = true
       this.articleId = artId // 接收 不喜欢文章的id
     },
-    // 调用不喜欢的文章的接口
-    async dislike () {
+    // 不喜欢或者举报
+    // operateType 操作类型 dislike /report
+    // params是 举报类型的参数
+    async dislikeOrReport (params, operateType) {
       try {
-        await disLikeArticle({ target: this.articleId })
+        operateType === 'dislike' ? await disLikeArticle({ target: this.articleId })
+          : await reportArticle({ target: this.articleId, type: params })
+
         this.$gnotify({
           type: 'success',
           message: '操作成功'
