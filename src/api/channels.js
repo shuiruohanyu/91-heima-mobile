@@ -37,3 +37,25 @@ export function getAllChannels () {
     url: '/channels'
   })
 }
+
+/****
+ *删除频道
+ * ***/
+export function delChannel (id) {
+  return new Promise(function (resolve, reject) {
+    // 首先也需要做判断  是删除 游客的频道还是删除登录的频道
+    let key = store.state.user.token ? CACHE_CHANNEL_U : CACHE_CHANNEL_T // 用于缓存的key
+    let channels = JSON.parse(localStorage.getItem(key)) // 得到缓存结果 缓存中一定是有数据的
+    let index = channels.findInidex(item => item.id === id) // 找到对应频道的索引
+    if (index > -1) {
+      // 删除数据
+      channels.splice(index, 1) // 直接删除原数组中的数据  第一种方式
+      // channels = channels.filter(item => item.id !== id) // 新数组模式去除要删除的频道 第二种方式
+      // 应该重新写入缓存
+      localStorage.setItem(key, JSON.stringify(channels)) // 重新写入 缓存
+      resolve()
+    } else {
+      reject(new Error('找不到对应的频道'))
+    }
+  })
+}
