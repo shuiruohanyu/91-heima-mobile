@@ -59,3 +59,17 @@ export function delChannel (id) {
     }
   })
 }
+// 添加频道
+
+export function addChannel (channel) {
+  return new Promise(function (resolve, reject) {
+    // 添加逻辑
+    // 首先也需要做判断  是删除 游客的频道还是删除登录的频道
+    let key = store.state.user.token ? CACHE_CHANNEL_U : CACHE_CHANNEL_T // 用于缓存的key
+    let channels = JSON.parse(localStorage.getItem(key)) // 得到缓存结果 缓存中一定是有数据的
+    channels.push(channel) // 将频道添加到队尾
+    // 重新写入缓存
+    localStorage.setItem(key, JSON.stringify(channels)) // 写入缓存
+    resolve() // 释放成功
+  })
+}
