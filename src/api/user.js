@@ -8,3 +8,18 @@ export function login (data) {
     method: 'post'
   }) //  得到一个promise对象  返回
 }
+/** *关注用户***/
+export function followUser (data) {
+  return request({
+    url: '/user/followings',
+    method: 'post',
+    data
+  })
+}
+/** *取消关注***/
+export function unFollowUser (target) {
+  return request({
+    method: 'delete',
+    url: `/user/followings/${target}`
+  })
+}
