@@ -1,31 +1,52 @@
 <template>
  <div class='container'>
-    <van-nav-bar fixed title="文章详情" left-arrow @click-left="$router.back()" />
+    <van-nav-bar fixed :title="article.title" left-arrow @click-left="$router.back()" />
     <div class="detail">
-      <h3 class="title">文章的标题</h3>
+      <h3 class="title">{{ article.title }}</h3>
       <div class="author">
-        <van-image round width="1rem" height="1rem" fit="fill" src="https://img.yzcdn.cn/vant/cat.jpeg" />
+        <van-image round width="1rem" height="1rem" fit="fill"
+         :src="article.aut_photo" />
         <div class="text">
-          <p class="name">一阵清风</p>
-          <p class="time">两周内</p>
+          <p class="name">{{ article.aut_name }}</p>
+          <!-- relTime过滤器 将时间转化成相对时间 -->
+          <p class="time">{{ article.pubdate | relTime }}</p>
         </div>
-        <van-button round size="small" type="info">+ 关注</van-button>
+        <!-- is_followed 为true表示已关注该用户 false表示未关注 -->
+        <van-button round size="small" type="info">{{ article.is_followed ? '已关注' : '+ 关注' }}</van-button>
       </div>
-      <div class="content">
-        <p>文章的内容</p>
+      <!-- v-html 可以渲染html标签 -->
+      <div class="content" v-html="article.content">
       </div>
       <div class="zan">
-        <van-button round size="small" class="active" plain icon="like-o">点赞</van-button>
+       <!-- :class="{css名称: 布尔值}" -->
+        <van-button round size="small" :class="{active: article.attitude === 1}" plain icon="like-o">点赞</van-button>
         &nbsp;&nbsp;&nbsp;&nbsp;
-        <van-button round size="small" plain icon="delete">不喜欢</van-button>
+        <van-button round size="small" :class="{active: article.attitude === 0}" plain icon="delete">不喜欢</van-button>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import { getArticleInfo } from '@/api/article'
 export default {
-  name: 'article'
+  name: 'articles',
+  data () {
+    return {
+      article: {} // 专门用来接收文章的数据
+    }
+  },
+  methods: {
+    // 获取文章详情
+    async getArticleInfo () {
+      let { articleId } = this.$route.query // 结构查询id
+      this.article = await getArticleInfo(articleId) // 查询数据
+    }
+  },
+  created () {
+    // 获取文章向详情数据
+    this.getArticleInfo()
+  }
 }
 </script>
 
@@ -52,6 +73,9 @@ export default {
   .author {
     padding: 10px 0;
     display: flex;
+    position:sticky;
+    background-color: #fff;
+    top:46px;
     .text {
       flex: 1;
       padding-left: 10px;
