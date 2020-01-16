@@ -8,8 +8,8 @@
     <van-search @search="onSearch" v-model.trim="q" placeholder="请输入搜索关键词" shape="round" />
     <!-- 联想搜索 -->
     <van-cell-group class="suggest-box" v-if="q">
-      <van-cell icon="search">
-        <span>j</span>ava
+      <van-cell @click="toSearchResult(item)" icon="search" v-for="item in suggestList" :key="item">
+        {{ item }}
       </van-cell>
     </van-cell-group>
     <!-- 历史记录 -->
@@ -27,7 +27,12 @@
           <a class="word_btn">{{ item }}</a>
           <!-- 给删除按钮注册删除事件 -->
           <!-- 事件修饰符 事件名.stop 表示 阻止了事件冒泡 -->
-          <van-icon @click.stop="delHistory(index)" class="close_btn" slot="right-icon" name="cross" />
+          <van-icon
+            @click.stop="delHistory(index)"
+            class="close_btn"
+            slot="right-icon"
+            name="cross"
+          />
         </van-cell>
       </van-cell-group>
     </div>
@@ -35,13 +40,47 @@
 </template>
 
 <script>
-const key = 'hm-91-toutiao-history' // 用来当做存储 本地历史记录的key
+// 用来当做存储 本地历史记录的key
+import { suggestion } from '@/api/article'
+const key = 'hm-91-toutiao-history'
 export default {
   name: 'search',
   data () {
     return {
       q: '', // 查询内容
-      historyList: [] // 存放历史记录的数据
+      historyList: [], // 存放历史记录的数据
+      suggestList: [] // 存放联想建议的数组
+
+    }
+  },
+  watch: {
+    // 防抖搜索
+    // q () {
+    //   clearTimeout(this.timer)
+    //   this.timer = setTimeout(async () => {
+    //     // 搜索联想的词汇
+    //     if (!this.q) {
+    //       this.suggestList = [] // 当搜索关键字变成空的时候将 联想数组清空
+    //           return false
+    //     }
+    //     let data = await suggestion({ q: this.q }) // 搜索联想建议
+    //     this.suggestList = data.options
+    //   }, 500)
+    // }
+    // 节流搜索
+    q () {
+      if (!this.timer) {
+        this.timer = setTimeout(async () => {
+          this.timer = null // 将定时器的标记清空
+          // 搜索联想的词汇
+          if (!this.q) {
+            this.suggestList = [] // 当搜索关键字变成空的时候将 联想数组清空
+            return false // 直接返回 下面不再执行
+          }
+          let data = await suggestion({ q: this.q }) // 搜索联想建议
+          this.suggestList = data.options
+        }, 500)
+      }
     }
   },
   methods: {
@@ -70,6 +109,15 @@ export default {
       localStorage.setItem(key, JSON.stringify(this.historyList)) // 重新写入缓存
       //  也应该去搜索结果页面 而且 也要携带参数
       this.$router.push({ path: '/search/result', query: { q: this.q } }) // 直接跳转到搜索结果界面
+    },
+    // 点击联想搜索关键词 去跳转 => 先把点击的关键词放入历史记录 表示我搜索过
+    toSearchResult (text) {
+      // 放入历史记录
+      let obj = new Set(this.historyList) // 生成一个set变量  set对象自动去重
+      obj.add(text)
+      this.historyList = Array.from(obj) // 将set转回数组
+      localStorage.setItem(key, JSON.stringify(this.historyList)) // 重新写入缓存
+      this.$router.push({ path: '/search/result', query: { q: text } }) // 直接跳转到搜索结果界面
     }
   },
   created () {
@@ -81,32 +129,32 @@ export default {
 <style lang='less' scoped>
 .history-box {
   padding: 0 20px;
-  .head{
+  .head {
     line-height: 36px;
     color: #999;
-    .van-icon{
+    .van-icon {
       font-size: 16px;
       float: right;
-      margin-top: 10px;;
+      margin-top: 10px;
     }
   }
-  .van-cell{
+  .van-cell {
     padding: 10px 0;
   }
-  .word_btn{
-    color:#3296fa;
+  .word_btn {
+    color: #3296fa;
   }
-  .close_btn{
-    margin-top:5px;
+  .close_btn {
+    margin-top: 5px;
     color: #999;
   }
 }
-.suggest-box{
-  /deep/ .van-cell{
+.suggest-box {
+  /deep/ .van-cell {
     padding: 10px 20px;
     color: #999;
-    p{
-      span{
+    p {
+      span {
         color: red;
       }
     }

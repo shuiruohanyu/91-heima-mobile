@@ -74,6 +74,7 @@ export default {
         const data = await login(this.loginForm) // 获取结果
         // 拿到了token 更新token信息
         // this.$store.commit('updateUser', { user: data }) // 第一种写法
+
         this.updateUser({ user: data }) // 更新用户信息
         // 登录成功
         this.$gnotify({ type: 'success', message: '登录成功' })
