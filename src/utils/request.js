@@ -48,7 +48,8 @@ instance.interceptors.response.use(function (response) {
   // 如何判断失效
   // error  => config (当前请求 的配置) request(请求) response(响应)
   if (error.response && error.response.status === 401) {
-    let toPath = { path: '/login', query: { redirectUrl: router.currentRoute.path } } // 跳转对象
+    // 将path换成fullPath, 目的是丢失我们的参数
+    let toPath = { path: '/login', query: { redirectUrl: router.currentRoute.fullPath } } // 跳转对象
 
     //   表示token过期 先判断 是否有refresh_token
     if (store.state.user.refresh_token) {

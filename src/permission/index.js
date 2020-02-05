@@ -14,7 +14,7 @@ router.beforeEach(function (to, from, next) {
     let toPath = {
       path: '/login',
       query: {
-        redirectUrl: to.path // 携带要去的地址到登录页 => 登录成功之后  有了权限 再回到刚才没有权限去的地址
+        redirectUrl: to.fullPath // 携带要去的地址到登录页 => 登录成功之后  有了权限 再回到刚才没有权限去的地址
       }
     }
     next(toPath)

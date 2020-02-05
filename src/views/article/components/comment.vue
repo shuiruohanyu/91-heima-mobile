@@ -31,14 +31,17 @@
         </div>
       </div>
     </van-list>
+    <!-- 提交模块 -->
     <div class="reply-container van-hairline--top">
-      <van-field v-model="value" placeholder="写评论...">
+      <!-- 给v-model一个修饰符 去掉 评论内容的前后空格 -->
+      <van-field v-model.trim="value" placeholder="写评论...">
+        <!-- van-loading 通过 submiting 状态来控制显示 -->
         <van-loading v-if="submiting" slot="button" type="spinner" size="16px"></van-loading>
-        <span class="submit" v-else slot="button">提交</span>
+        <span class="submit" @click="submit" v-else slot="button">提交</span>
       </van-field>
     </div>
-    <!-- 回复列表弹层 -->
-    <van-action-sheet :round="false" v-model="showReply"  class="reply_dialog" title="回复评论">
+    <!-- 回复列表弹层   @closed="reply.commentId = null" 当退出之后 把评论id重置为null -->
+    <van-action-sheet @closed="reply.commentId = null" :round="false" v-model="showReply"  class="reply_dialog" title="回复评论">
       <!-- 回复列表组件  加载状态 finished finshed-text=""-->
       <!-- immediate-check 控制当前 van-list组件是否主动检查滚动  关闭了主动检查 第一次不会主动的去调用load事件对应的方法了 -->
       <van-list @load="getReply" :immediate-check="false" v-model="reply.loading" :finished="reply.finished" finished-text="没有更多了">
@@ -63,7 +66,7 @@
 </template>
 
 <script>
-import { getComments } from '@/api/article' // 引入 封装的获取评论方法
+import { getComments, commentOrReply } from '@/api/article' // 引入 封装的获取评论方法 回复评论的方法
 export default {
   data () {
     return {
@@ -89,6 +92,47 @@ export default {
     }
   },
   methods: {
+    // 提交评论的方法
+    async submit () {
+      if (!this.value) return false // 表示如果当前评论内容为空就立刻返回
+      this.submiting = true // 将提交状态设置成true 控制用户单位时间内评论的数据次数
+      await this.$sleep() // 强制等待500 毫秒
+      try {
+      // 评论
+      // 一种是对文章进行评论
+      // 一种是对评论进行评论
+        // 如果不为空 继续
+        // 怎么样区分当前是对文章进行评论 还是对评论进行评论
+        // 两种方式 一种方式 通过 showReply的true/false
+        // 一种方式 通过 reply.commentId是存在
+        const data = await commentOrReply({
+        // this.reply.commentId 存在 就要对 评论进行评论  否则传文章ID
+          target: this.reply.commentId ? this.reply.commentId.toString() : this.$route.query.articleId, // 要么是文章id, 要么是 评论id
+          content: this.value, // 评论的内容
+          art_id: this.reply.commentId ? this.$route.query.articleId : null
+        // 如果此时对文章进行评论 art_id不能传 如果是对 评论进行评论 文章ID必须传
+        })
+        // 评论成功怎么处理 刷新页面 => 将评论的数据呈现到 视图上
+        // 需要知道加个哪个数组的最前面
+        if (this.reply.commentId) {
+          // 对评论进行评论
+          this.reply.list.unshift(data.new_obj) // 将数据加到 队首 评论的评论
+          // 如果对评论的进行评论之后, 应该找到该评论 并将 该评论的回复次数 +1
+          // 怎么找到 对应的评论
+          // 如果找到了 comment就是找到的对象 如果找不到 comment就是一个undefined
+          const comment = this.comments.find(item => item.com_id.toString() === this.reply.commentId.toString())
+          comment && comment.reply_count++ // 如果找到了 就对回复数据加1
+        } else {
+          // 对文章进行评论
+          this.comments.unshift(data.new_obj) // 文章评论
+        }
+        this.value = '' // 清空输入框
+      } catch (error) {
+        this.$gnotify({ type: 'danger', message: '评论失败' })
+      }
+      // 最后去关闭 状态
+      this.submiting = false // 关闭进度条
+    },
     // 打开回复列表面板
     openReply (commentId) {
       this.showReply = true // 弹出面板
