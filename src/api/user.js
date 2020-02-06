@@ -47,3 +47,11 @@ export function updateImg (data) {
     data
   })
 }
+/** 封装一个 保存用户的方法***/
+export function saveUserInfo (data) {
+  return request({
+    url: '/user/profile', // 编辑资料的地址
+    data,
+    method: 'patch'
+  })
+}
