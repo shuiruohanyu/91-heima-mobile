@@ -23,9 +23,17 @@ export function unFollowUser (target) {
     url: `/user/followings/${target}`
   })
 }
-/** **获取用户个人信息*****/
+/** **获取用户个人信息  文章 发表状态*****/
 export function getUserInfo () {
   return request({
     url: '/user'
+  })
+}
+/****
+ * 获取用户个人资料
+ * *****/
+export function getUserProfile () {
+  return request({
+    url: '/user/profile' // 获取用户个人资料的接口地址
   })
 }

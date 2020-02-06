@@ -185,6 +185,9 @@ export default {
 <style lang='less' scoped>
 .comment {
   margin-top: 10px;
+ .van-image__img {
+    height: 100px;
+  }
   /deep/ .item {
     display: flex;
     padding: 10px 0;
