@@ -5,7 +5,13 @@
     <!-- 二级路由容器  首页/问答/视频/我的-->
     <!-- :class="{ 名称: 布尔值 }" -->
     <div class="my-wrapper" :class="{ noTop: !showNavBar }">
-      <router-view></router-view>
+      <!-- 如果想要缓存的二级路由组件的话 可以直接缓存二级路由容器
+        如果缓存了这个容器 表示 这个容器下的所有的组件都会被缓存
+       -->
+       <keep-alive>
+         <!-- 用keep-alive包裹路由容器 -->
+         <router-view></router-view>
+       </keep-alive>
     </div>
     <!-- 标签栏  开启路由模式 route :route="true"(布尔)  route="true"(字符串)-->
     <van-tabbar route>

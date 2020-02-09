@@ -1,7 +1,7 @@
 <template>
   <!-- 这里注意 这个div设置了滚动条 目的是 给后面做 阅读记忆 留下伏笔 -->
   <!-- 阅读记忆 => 看文章看到一半 滑到中部 去了别的页面 当你回来时 文章还在你看的位置 -->
-  <div class="scroll-wrapper">
+  <div ref="myScroll" class="scroll-wrapper" @scroll="remember">
     <van-pull-refresh v-model="downLoading" @refresh="onRefresh" :success-text="refreshSuccessText">
       <!-- 放置list组件list组件可以实现 上拉加载 -->
       <van-list v-model="upLoading" :finished="finished" finished-text="没有了" @load="onLoad">
@@ -52,7 +52,8 @@ export default {
       finished: false, // 是否已经完成全部的数据加载
       articles: [], // 定义一个数据来接收上拉加载的数据
       refreshSuccessText: '', // 下拉成功显示的文本
-      timestamp: null // 定义一个时间戳 这个时间戳用来告诉服务器 现在我要求什么样的时间的数据
+      timestamp: null, // 定义一个时间戳 这个时间戳用来告诉服务器 现在我要求什么样的时间的数据
+      scrollTop: 0 // 用该属性记录当前文章列表实例所滚动的位置
     }
   },
   props: {
@@ -66,8 +67,10 @@ export default {
   computed: {
     ...mapState(['user'])
   },
+  // 即使启动了组件缓存 created函数也依然会执行 但是自始至终只会执行一次
   created () {
     // 开启监听
+    // 监听 删除文章事件
     eventBus.$on('delArticle', (articleId, channelId) => {
       if (this.channel_id === channelId) {
         // 这个条件表示 该列表就是当前激活的列表
@@ -78,8 +81,35 @@ export default {
         }
       }
     })
+    // 只要开启一次监听 以后触发了事件 就会进入到我们的回调函数
+    // 开启一个新的监听 监听当前tab切换的事件
+    eventBus.$on('changeTab', id => {
+      // 判断一个id是否等于 该组件通过props得到的频道id
+      if (id === this.channel_id) {
+        // 如果相等 说明找对了article-list实例
+        // 因为artcile-list是有多个的
+        // 为什么这里没有滚动呢?
+        // 是因为 切换事件之后 会执行 dom的更新 => dom的更新是异步的
+        // 如果保证自己 在上一次完整页面渲染更新之后 执行逻辑
+        // this.$nextTick => 会在数据 响应式之后 页面渲染完毕之后执行
+        // this.$nextTick会保证在changeTab动作切换完成并且完成界面渲染之后执行
+        this.$nextTick(() => {
+          if (this.scrollTop && this.$refs.myScroll) {
+          // 表示 该文章列表是存在滚动的
+            this.$refs.myScroll.scrollTop = this.scrollTop
+          }
+        })
+      }
+    })
   },
   methods: {
+    // 定义一个记录位置的方法
+    // 当绑定事件只写 方法名时 第一个参数是event
+    remember (event) {
+    //  记录此次滚动事件中的滚动条距离顶部的高度
+      // event.target 指的是什么
+      this.scrollTop = event.target.scrollTop // 记录位置
+    },
     //   上拉加载方法
     async onLoad () {
       await this.$sleep() // 等待 sleep  resovle
@@ -147,6 +177,18 @@ export default {
         //  如果没有数据更新  什么都不需要变化
         this.refreshSuccessText = '已是最新数据'
       }
+    }
+  },
+  // activeed函数 第一次并不会被执行 而是在已经缓存之后执行
+  // 激活函数 当组件被keep-alive包裹 keep-alive => router-view => home => article-list
+  activated () {
+    // 唤醒的时候 需要 把记录的位置 回复回去
+    // 需要在组件重新激活的时候 重新 设置原来的滚动条
+    // 怎么滚回去
+    if (this.scrollTop && this.$refs.myScroll) {
+      // 当滚动距离 不为0 且dom元素存在的情况下 才去做滚动
+      // scrollTop指的是滚动条垂直方向的像素位置
+      this.$refs.myScroll.scrollTop = this.scrollTop // 将原来记录的位置赋值给dom元素
     }
   }
 }
